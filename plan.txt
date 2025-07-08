@@ -1,0 +1,7 @@
+Movie Recommendation
+- React app deployed on pipeline
+- have recommendation (ai) - personalize
+- search - opensearch
+- ddb - upvotes, downvotes, feedback
+- Api gateway, lambda to serverless backend
+- translate to provide various languages
