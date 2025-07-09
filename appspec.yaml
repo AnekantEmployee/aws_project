@@ -2,24 +2,21 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /var/www/html/nextjs-app
-    overwrite: yes
-permissions:
-  - object: /var/www/html/nextjs-app
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
-    mode: 755
+    destination: /var/www/nextjs_app
 hooks:
   BeforeInstall:
     - location: scripts/install_dependencies.sh
       timeout: 300
       runas: root
-  ApplicationStart:
-    - location: scripts/start_server.sh
-      timeout: 300
-      runas: ubuntu
+  AfterInstall:
+    - location: scripts/build_application.sh
+      timeout: 600
+      runas: root
   ApplicationStop:
-    - location: scripts/stop_server.sh
-      timeout: 300
-      runas: ubuntu
+    - location: scripts/stop_application.sh
+      timeout: 120
+      runas: root
+  ValidateService:
+    - location: scripts/validate_application.sh
+      timeout: 60
+      runas: root
