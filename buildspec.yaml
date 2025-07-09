@@ -5,15 +5,26 @@ phases:
       nodejs: 18
     commands:
       - echo Installing dependencies with npm...
-      - npm ci  # Use npm ci for faster, reliable builds
+      - npm ci
+  pre_build:
+    commands:
+      - echo Pre-build started on `date`
+      - node --version
+      - npm --version
+      - echo "Checking package.json build script:"
+      - cat package.json | grep -A 3 -B 3 "build"
+      - echo "Checking if .next directory exists:"
+      - ls -la
   build:
     commands:
       - echo Build started on `date`
       - echo Compiling the Next.js code...
-      - NODE_OPTIONS="--max_old_space_size=4096" npm run build
+      - NODE_OPTIONS="--max_old_space_size=4096" npm run build --verbose
   post_build:
     commands:
       - echo Build completed on `date`
+      - echo "Build output:"
+      - ls -la .next/ || echo "No .next directory found"
 artifacts:
   files:
     - "**/*"
