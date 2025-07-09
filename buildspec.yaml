@@ -1,52 +1,22 @@
 version: 0.2
-
 phases:
   install:
+    runtime-versions:
+      nodejs: 12
     commands:
-      - echo "Checking system package manager..."
-      - if command -v yum &> /dev/null; then
-          echo "Using yum package manager";
-          yum update -y;
-          yum install -y curl;
-        elif command -v apt-get &> /dev/null; then
-          echo "Using apt package manager";
-          apt-get update -y;
-          apt-get install -y curl;
-        else
-          echo "No supported package manager found";
-          exit 1;
-        fi
-
-      - echo "Installing Node.js..."
-      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-      - if command -v yum &> /dev/null; then
-          yum install -y nodejs;
-        elif command -v apt-get &> /dev/null; then
-          apt-get install -y nodejs;
-        fi
-
-      - echo "Updating npm..."
-      - npm install -g npm@latest
-      - node -v
-      - npm -v
-
-  pre_build:
-    commands:
-      - echo "Installing project dependencies..."
-      - npm ci --no-audit
-
+      - echo Installing dependencies with Yarn...
+      - yarn set version berry
+      - yarn install
   build:
     commands:
-      - echo "Building Next.js application..."
-      - npm run build
-
+      - echo Build started on `date`
+      - echo Compiling the Node.js code...
+      - yarn build
   post_build:
     commands:
-      - echo "Copying build artifacts..."
-      - mkdir -p $CODEBUILD_OUTPUT_DIR
-      - cp -r .next public package.json package-lock.json appspec.yaml scripts/ $CODEBUILD_OUTPUT_DIR/
-
+      - echo Build completed on `date`
+      - echo doing nothing
 artifacts:
   files:
-    - '**/*'
-  base-directory: $CODEBUILD_OUTPUT_DIR
+    - "**/*"
+  discard-paths: yes
