@@ -9,14 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "lucide-react": "^0.525.0",
+    "next": "14.2.30",
+    "radix-ui": "^1.4.2",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.30"
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "@types/node": "24.0.12",
+    "@types/react": "19.1.8",
     "eslint": "^8",
-    "eslint-config-next": "14.2.30"
+    "eslint-config-next": "14.2.30",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
   }
 }
