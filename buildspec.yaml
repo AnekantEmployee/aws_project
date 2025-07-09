@@ -3,36 +3,35 @@ version: 0.2
 phases:
   install:
     commands:
+      - echo "Updating package lists..."
+      - apt-get update -y
+      
       - echo "Installing Node.js..."
-      # Use Node.js 18.x (recommended for Next.js)
-      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash - || echo "Node.js setup failed, trying alternative approach"
-      - apt-get install -y nodejs || { echo "Node.js installation failed"; exit 1; }
-      - echo "Node.js version: $(node -v)"
-      - echo "npm version: $(npm -v)"
+      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+      - apt-get install -y nodejs
       
-      # Optional: Use corepack for managing package managers
-      - npm install -g corepack
-      - corepack enable
-      - corepack prepare yarn@stable --activate
+      - echo "Installing latest npm..."
+      - npm install -g npm@latest
       
+      - echo "Versions:"
+      - node -v
+      - npm -v
+
   pre_build:
     commands:
       - echo "Installing project dependencies..."
-      - npm ci --no-audit  # Using ci for clean installs with package-lock.json
-      - echo "Dependency installation complete"
-      
+      - npm ci --no-audit
+
   build:
     commands:
-      - echo "Building Next.js project..."
+      - echo "Building Next.js application..."
       - npm run build
-      - echo "Build completed successfully"
-      
+
   post_build:
     commands:
-      - echo "Build finished on $(date)"
-      - echo "Generating build artifacts..."
-      # Next.js output is in .next/ folder by default
-      - cp -r .next/ public/ package.json package-lock.json appspec.yaml scripts/ $CODEBUILD_OUTPUT_DIR/
+      - echo "Copying build artifacts..."
+      - mkdir -p $CODEBUILD_OUTPUT_DIR
+      - cp -r .next public package.json package-lock.json appspec.yaml scripts/ $CODEBUILD_OUTPUT_DIR/
 
 artifacts:
   files:
