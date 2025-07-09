@@ -24,6 +24,7 @@ interface Movie {
   cast?: string[];
   duration?: number;
   language?: string;
+  recommendations?: Movie[]; // Add this line
 }
 
 const Index = () => {
@@ -126,18 +127,22 @@ const Index = () => {
     setMovies(sampleMovies);
   }, []);
 
-  const handleMovieClick = (movie: Movie) => {
-    setSelectedMovie(movie);
-    setIsModalOpen(true);
-    
-    // Generate sample recommendations (in real app, this would be AI-powered)
-    const recommendations = sampleMovies
-      .filter(m => m.id !== movie.id)
-      .filter(m => m.genre.some(g => movie.genre.includes(g)))
-      .slice(0, 5);
-    
-    setSelectedMovie({...movie, recommendations});
+const handleMovieClick = (movie: Movie) => {
+  // Generate sample recommendations
+  const recommendations = sampleMovies
+    .filter(m => m.id !== movie.id)
+    .filter(m => m.genre.some(g => movie.genre.includes(g)))
+    .slice(0, 5);
+  
+  // Create a new movie object with recommendations
+  const movieWithRecommendations: Movie = {
+    ...movie,
+    recommendations
   };
+  
+  setSelectedMovie(movieWithRecommendations);
+  setIsModalOpen(true);
+};
 
   const handleUpvote = (movieId: number) => {
     setMovies(prev => prev.map(movie => 
