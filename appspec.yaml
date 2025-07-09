@@ -3,6 +3,23 @@ os: linux
 files:
   - source: /
     destination: /var/www/nextjs_app
+    permissions:
+      - object: /var/www/nextjs_app
+        owner: root
+        group: root
+        mode: 755
+      - object: /var/www/nextjs_app/scripts
+        owner: root
+        group: root
+        mode: 755
+        type:
+          - directory
+      - object: /var/www/nextjs_app/scripts/*.sh
+        owner: root
+        group: root
+        mode: 755
+        type:
+          - file
 hooks:
   BeforeInstall:
     - location: scripts/install_dependencies.sh
