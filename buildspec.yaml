@@ -4,30 +4,37 @@ phases:
   install:
     commands:
       - echo "Installing Node.js..."
-      - curl -sL https://deb.nodesource.com/setup_16.x | bash -
-      - apt-get install -y nodejs
-      - echo "Checking Node.js and npm versions..."
-      - node -v
-      - npm -v
-      - echo "Updating npm..."
-      - npm install -g npm@latest || echo "npm update failed, continuing with existing version"
-      - npm -v
+      # Use Node.js 18.x (recommended for Next.js)
+      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash - || echo "Node.js setup failed, trying alternative approach"
+      - apt-get install -y nodejs || { echo "Node.js installation failed"; exit 1; }
+      - echo "Node.js version: $(node -v)"
+      - echo "npm version: $(npm -v)"
+      
+      # Optional: Use corepack for managing package managers
+      - npm install -g corepack
+      - corepack enable
+      - corepack prepare yarn@stable --activate
       
   pre_build:
     commands:
       - echo "Installing project dependencies..."
-      - npm install
+      - npm ci --no-audit  # Using ci for clean installs with package-lock.json
+      - echo "Dependency installation complete"
       
   build:
     commands:
-      - echo "Building project..."
+      - echo "Building Next.js project..."
       - npm run build
+      - echo "Build completed successfully"
       
   post_build:
     commands:
-      - echo "Build completed on `date`"
+      - echo "Build finished on $(date)"
+      - echo "Generating build artifacts..."
+      # Next.js output is in .next/ folder by default
+      - cp -r .next/ public/ package.json package-lock.json appspec.yaml scripts/ $CODEBUILD_OUTPUT_DIR/
 
 artifacts:
   files:
     - '**/*'
-  base-directory: 'dist'
+  base-directory: $CODEBUILD_OUTPUT_DIR
