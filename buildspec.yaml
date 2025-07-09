@@ -10,7 +10,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Compiling the Next.js code...
-      - npm run build
+      - NODE_OPTIONS="--max_old_space_size=4096" npm run build
   post_build:
     commands:
       - echo Build completed on `date`
