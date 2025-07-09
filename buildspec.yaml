@@ -3,17 +3,30 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Updating package lists..."
-      - apt-get update -y
-      
+      - echo "Checking system package manager..."
+      - if command -v yum &> /dev/null; then
+          echo "Using yum package manager";
+          yum update -y;
+          yum install -y curl;
+        elif command -v apt-get &> /dev/null; then
+          echo "Using apt package manager";
+          apt-get update -y;
+          apt-get install -y curl;
+        else
+          echo "No supported package manager found";
+          exit 1;
+        fi
+
       - echo "Installing Node.js..."
       - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-      - apt-get install -y nodejs
-      
-      - echo "Installing latest npm..."
+      - if command -v yum &> /dev/null; then
+          yum install -y nodejs;
+        elif command -v apt-get &> /dev/null; then
+          apt-get install -y nodejs;
+        fi
+
+      - echo "Updating npm..."
       - npm install -g npm@latest
-      
-      - echo "Versions:"
       - node -v
       - npm -v
 
