@@ -25,7 +25,14 @@ phases:
       - echo Build completed on `date`
       - echo "Build output:"
       - ls -la .next/ || echo "No .next directory found"
+      - echo "Checking final directory structure:"
+      - ls -la
+      - echo "Checking scripts directory:"
+      - ls -la scripts/
+      - echo "Making scripts executable:"
+      - chmod +x scripts/*.sh
 artifacts:
   files:
     - "**/*"
-  discard-paths: yes
+  # Remove discard-paths or set it to no
+  discard-paths: no
