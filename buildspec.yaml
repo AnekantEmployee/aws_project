@@ -2,20 +2,18 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 12
+      nodejs: 18
     commands:
-      - echo Installing dependencies with Yarn...
-      - yarn set version berry
-      - yarn install
+      - echo Installing dependencies with npm...
+      - npm ci  # Use npm ci for faster, reliable builds
   build:
     commands:
       - echo Build started on `date`
-      - echo Compiling the Node.js code...
-      - yarn build
+      - echo Compiling the Next.js code...
+      - npm run build
   post_build:
     commands:
       - echo Build completed on `date`
-      - echo doing nothing
 artifacts:
   files:
     - "**/*"
