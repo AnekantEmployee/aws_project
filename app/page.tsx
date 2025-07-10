@@ -7,6 +7,8 @@ import { useToast } from './hooks/use-toast';
 import MovieCard from './components/MovieCard';
 import SearchBar from './components/SearchBar';
 import MovieModal from './components/MovieModal';
+import { TranslateClient, CreateParallelDataCommand, TranslateTextCommand } from "@aws-sdk/client-translate"; // ES Modules import
+
 
 interface Movie {
   id: number;
@@ -26,6 +28,7 @@ interface Movie {
   language?: string;
   recommendations?: Movie[]; // Add this line
 }
+
 
 const Index = () => {
   const { toast } = useToast();
@@ -195,6 +198,41 @@ const handleMovieClick = (movie: Movie) => {
     setSearchResults([]);
     setIsSearching(false);
   };
+
+  const translateClient = new TranslateClient({
+  region: process.env.NEXT_PUBLIC_AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+async function translateText(text, sourceLanguage, targetLanguage) {
+  try {
+    const command = new TranslateTextCommand({
+      Text: text,
+      SourceLanguageCode: sourceLanguage,
+      TargetLanguageCode: targetLanguage,
+    });
+
+    const response = await translateClient.send(command);
+    return response.TranslatedText;
+  } catch (error) {
+    console.error('Translation error:', error);
+    throw new Error('Translation failed');
+  }
+}
+
+useEffect(() => {
+  (async () => {
+    const hindi = await translateText('hey, my name is anekant', 'en', 'hi');
+    console.log('Hindi:', hindi);
+
+    const marathi = await translateText('hey, my name is anekant', 'en', 'mr');
+    console.log('Marathi:', marathi);
+  })(); // Immediately Invoked Function Expression (IIFE)
+}, []);
+
 
   const featuredMovie = movies[0];
   const displayMovies = searchResults.length > 0 ? searchResults : movies;
