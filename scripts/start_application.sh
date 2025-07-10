@@ -16,7 +16,13 @@ if [ ! -d ".next" ]; then
     exit 1
 fi
 
-# Start the application with PM2
-pm2 start npm --name "nextjs_app" -- start
+# Start the application with PM2 and bind to all interfaces
+if [ -f "ecosystem.config.js" ]; then
+    echo "Using PM2 ecosystem config"
+    pm2 start ecosystem.config.js
+else
+    echo "Starting with inline PM2 configuration"
+    pm2 start npm --name "nextjs_app" -- start -- -H 0.0.0.0 -p 3000
+fi
 
 echo "Application started successfully"
