@@ -4,37 +4,36 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - echo Installing dependencies with npm...
+      - echo "Installing dependencies..."
       - npm ci
+      - npm cache clean --force
+
   pre_build:
     commands:
-      - echo Pre-build started on `date`
-      - node --version
-      - npm --version
-      - echo "Checking package.json build script:"
-      - cat package.json | grep -A 3 -B 3 "build"
-      - echo "Current directory contents:"
+      - echo "Pre-build phase started on $(date)"
+      - echo "Node.js $(node --version)"
+      - echo "npm $(npm --version)"
+      - echo "Project structure:"
       - ls -la
+
   build:
     commands:
-      - echo Build started on `date`
-      - echo Compiling the Next.js code...
-      - NODE_OPTIONS="--max_old_space_size=4096" npm run build --verbose
+      - echo "Build started on $(date)"
+      - export NODE_OPTIONS="--max-old-space-size=4096"
+      - npm run build --verbose
+      - echo "Build output:"
+      - ls -la .next/
+
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo "Build output:"
-      - ls -la .next/ || echo "No .next directory found"
-      - echo "Checking final directory structure:"
+      - echo "Preparing artifacts..."
+      - chmod +x scripts/*.sh  # Ensure scripts are executable
+      - echo "Final directory structure:"
       - ls -la
-      - echo "Checking scripts directory:"
-      - ls -la scripts/
-      - echo "Making scripts executable:"
-      - chmod +x scripts/*.sh
-      - echo "Removing dev dependencies for deployment:"
-      - rm -rf node_modules
-      - npm ci --only=production
+      - echo "Build completed on $(date)"
+
 artifacts:
   files:
-    - "**/*"
-  discard-paths: no
+    - "**/*"  # Include all files
+  base-directory: .  # Root of the project
+  discard-paths: no  # Keep directory structure

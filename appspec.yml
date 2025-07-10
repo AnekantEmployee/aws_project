@@ -8,32 +8,20 @@ hooks:
     - location: scripts/install_node_pm2.sh
       timeout: 300
       runas: root
-  AfterInstall:
-    - location: scripts/install_dependencies.sh
-      timeout: 600
-      runas: root
   ApplicationStop:
     - location: scripts/stop_application.sh
       timeout: 120
       runas: root
   ApplicationStart:
     - location: scripts/start_application.sh
-      timeout: 120
-      runas: root
+      timeout: 300  # Increased for Next.js startup
+      runas: nodeuser  # Changed from root
   ValidateService:
     - location: scripts/validate_application.sh
       timeout: 60
-      runas: root
+      runas: nodeuser
 permissions:
   - object: /var/www/nextjs_app
-    owner: root
-    group: root
-    mode: 755
-  - object: /var/www/nextjs_app/scripts
-    owner: root
-    group: root
-    mode: 755
-  - object: /var/www/nextjs_app/scripts/*.sh
-    owner: root
-    group: root
+    owner: nodeuser
+    group: nodeuser
     mode: 755
