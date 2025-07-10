@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-exec > >(tee /var/log/codedeploy-validate.log) 2>&1
+# Use a log file in a writable location
+LOG_FILE="/tmp/codedeploy-validate.log"
+exec > >(tee "$LOG_FILE") 2>&1
 
 echo "Validating application..."
 
@@ -11,15 +13,16 @@ sleep 30
 # Check PM2 status with better error handling
 if ! pm2 describe nextjs_app >/dev/null 2>&1; then
     echo "PM2 process not found"
-    pm2 list
+    pm2 list || true
     exit 1
 fi
 
-# Get actual status (not just grep)
-STATUS=$(pm2 jlist | jq -r '.[] | select(.name=="nextjs_app") | .pm2_env.status')
-if [ "$STATUS" != "online" ]; then
-    echo "Application not online - current status: $STATUS"
-    pm2 logs nextjs_app --lines 100
+# Get PM2 status without using jq (parse the output differently)
+PM2_STATUS=$(pm2 describe nextjs_app 2>/dev/null | grep -i "status" | head -1 | awk '{print $NF}' || echo "unknown")
+
+if [ "$PM2_STATUS" != "online" ]; then
+    echo "Application not online - current status: $PM2_STATUS"
+    pm2 logs nextjs_app --lines 100 || true
     exit 1
 fi
 
@@ -28,7 +31,7 @@ for i in {1..10}; do
     TIMEOUT=$((i * 2))
     echo "Attempt $i: Testing endpoint (timeout: ${TIMEOUT}s)..."
     
-    if curl -s --max-time $TIMEOUT http://localhost:3000/api/health >/dev/null; then
+    if curl -s --max-time $TIMEOUT http://localhost:3000/api/health >/dev/null 2>&1; then
         echo "Application is healthy"
         exit 0
     fi
@@ -37,5 +40,5 @@ for i in {1..10}; do
 done
 
 echo "Validation failed - application not responding"
-pm2 logs nextjs_app --lines 100
+pm2 logs nextjs_app --lines 100 || true
 exit 1
