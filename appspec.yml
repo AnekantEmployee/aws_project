@@ -15,13 +15,13 @@ hooks:
   ApplicationStart:
     - location: scripts/start_application.sh
       timeout: 300  # Increased for Next.js startup
-      runas: nodeuser  # Changed from root
+      runas: ubuntu  # Changed from root
   ValidateService:
     - location: scripts/validate_application.sh
       timeout: 60
-      runas: nodeuser
+      runas: ubuntu
 permissions:
   - object: /var/www/nextjs_app
-    owner: nodeuser
-    group: nodeuser
+    owner: ubuntu
+    group: ubuntu
     mode: 755
