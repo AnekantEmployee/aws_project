@@ -29,7 +29,14 @@ permissions:
     owner: ubuntu
     group: ubuntu
     mode: 755
+    type:
+      - directory
   - object: /var/www/nextjs_app/node_modules
     owner: ubuntu
     group: ubuntu
-    mode: 755
+    mode: -rw-r--r--
+    pattern:
+      - "**"
+    type:
+      - file
+      - directory
