@@ -18,7 +18,8 @@ fi
 
 echo "Found package.json. Installing dependencies..."
 
-# Install production dependencies only
-npm ci --only=production
+# Clear npm cache and install
+npm cache clean --force
+npm ci --only=production --no-optional
 
 echo "Dependencies installed successfully"
