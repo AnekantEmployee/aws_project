@@ -1,34 +1,41 @@
 #!/bin/bash
 set -e
 
-# Log output
 exec > >(tee /var/log/codedeploy-validate.log) 2>&1
 
 echo "Validating application..."
 
-# Wait for application to fully start
-sleep 15
+# Extended timeout for Next.js cold starts
+sleep 30
 
-# Check if PM2 process is running
-if pm2 describe nextjs_app | grep -q "online"; then
-    echo "Application is running successfully"
-    
-    # Test HTTP endpoint with retry logic
-    for i in {1..5}; do
-        if curl -s --max-time 10 http://localhost:3000 > /dev/null; then
-            echo "Application is responding to HTTP requests"
-            echo "Validation completed successfully"
-            exit 0
-        else
-            echo "Attempt $i: Application not yet responding, waiting..."
-            sleep 5
-        fi
-    done
-    
-    echo "Application is not responding to HTTP requests after 5 attempts"
-    exit 1
-else
-    echo "Application failed to start"
-    pm2 logs nextjs_app --lines 50
+# Check PM2 status with better error handling
+if ! pm2 describe nextjs_app >/dev/null 2>&1; then
+    echo "PM2 process not found"
+    pm2 list
     exit 1
 fi
+
+# Get actual status (not just grep)
+STATUS=$(pm2 jlist | jq -r '.[] | select(.name=="nextjs_app") | .pm2_env.status')
+if [ "$STATUS" != "online" ]; then
+    echo "Application not online - current status: $STATUS"
+    pm2 logs nextjs_app --lines 100
+    exit 1
+fi
+
+# Health check with retries and backoff
+for i in {1..10}; do
+    TIMEOUT=$((i * 2))
+    echo "Attempt $i: Testing endpoint (timeout: ${TIMEOUT}s)..."
+    
+    if curl -s --max-time $TIMEOUT http://localhost:3000/api/health >/dev/null; then
+        echo "Application is healthy"
+        exit 0
+    fi
+    
+    sleep $TIMEOUT
+done
+
+echo "Validation failed - application not responding"
+pm2 logs nextjs_app --lines 100
+exit 1
