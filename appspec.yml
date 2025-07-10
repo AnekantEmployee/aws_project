@@ -12,13 +12,20 @@ hooks:
     - location: scripts/stop_application.sh
       timeout: 120
       runas: root
+  AfterInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 600
+      runas: ubuntu
+    - location: scripts/build_application.sh
+      timeout: 600
+      runas: ubuntu
   ApplicationStart:
     - location: scripts/start_application.sh
-      timeout: 300  # Increased for Next.js startup
-      runas: ubuntu  # Changed from root
+      timeout: 300
+      runas: ubuntu
   ValidateService:
     - location: scripts/validate_application.sh
-      timeout: 60
+      timeout: 180
       runas: ubuntu
 permissions:
   - object: /var/www/nextjs_app

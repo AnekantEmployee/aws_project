@@ -2,7 +2,8 @@
 set -e
 
 # Log output
-exec > >(tee /var/log/codedeploy-install-deps.log) 2>&1
+LOG_FILE="/var/log/codedeploy-install-deps.log"
+exec > >(tee "$LOG_FILE") 2>&1
 
 echo "Starting dependency installation..."
 
@@ -18,8 +19,16 @@ fi
 
 echo "Found package.json. Installing dependencies..."
 
-# Clear npm cache and install
+# Set proper npm registry and clear cache
+npm config set registry https://registry.npmjs.org/
 npm cache clean --force
+
+# Install dependencies
+echo "Installing production dependencies..."
 npm ci --only=production --no-optional
 
 echo "Dependencies installed successfully"
+
+# Show installed packages for debugging
+echo "Installed packages:"
+npm list --depth=0 || true
