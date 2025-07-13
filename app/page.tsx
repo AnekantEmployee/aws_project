@@ -37,6 +37,8 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [movies, setMovies] = useState<Movie[]>([]);
+    const [translated, setTranslated] = useState('');
+
 
   // Sample movie data - in real app this would come from your API
   const sampleMovies: Movie[] = [
@@ -207,7 +209,7 @@ const handleMovieClick = (movie: Movie) => {
   },
 });
 
-async function translateText(text, sourceLanguage, targetLanguage) {
+const translateText = async (text, targetLanguage, sourceLanguage = 'en') => {
   try {
     const command = new TranslateTextCommand({
       Text: text,
@@ -219,20 +221,17 @@ async function translateText(text, sourceLanguage, targetLanguage) {
     return response.TranslatedText;
   } catch (error) {
     console.error('Translation error:', error);
-    throw new Error('Translation failed');
+    return text; // Return original text if translation fails
   }
-}
+};
 
-useEffect(() => {
-  (async () => {
-    const hindi = await translateText('hey, my name is anekant', 'en', 'hi');
-    console.log('Hindi:', hindi);
-
-    const marathi = await translateText('hey, my name is anekant', 'en', 'mr');
-    console.log('Marathi:', marathi);
-  })(); // Immediately Invoked Function Expression (IIFE)
-}, []);
-
+ useEffect(() => {
+    const getTranslation = async () => {
+      const result = await translateText('hey, my name is anekant', 'hi');
+      setTranslated(result);
+    };
+    getTranslation();
+  }, []);
 
   const featuredMovie = movies[0];
   const displayMovies = searchResults.length > 0 ? searchResults : movies;

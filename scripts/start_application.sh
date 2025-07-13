@@ -50,6 +50,9 @@ EOF
 pm2 stop nextjs_app 2>/dev/null || echo "No existing process to stop"
 pm2 delete nextjs_app 2>/dev/null || echo "No existing process to delete"
 
+# Wait a moment for cleanup
+sleep 2
+
 # Start application using ecosystem file
 echo "Starting Next.js server with PM2..."
 pm2 start ecosystem.config.js
@@ -61,6 +64,10 @@ pm2 save
 if ! pm2 startup | grep -q "already configured"; then
     pm2 startup systemd -u ubuntu --hp /home/ubuntu | bash
 fi
+
+# Wait for application to start
+echo "Waiting for application to initialize..."
+sleep 5
 
 echo "Application started successfully"
 

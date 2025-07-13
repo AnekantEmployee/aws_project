@@ -23,9 +23,9 @@ echo "Found package.json. Installing dependencies..."
 npm config set registry https://registry.npmjs.org/
 npm cache clean --force
 
-# Install dependencies
-echo "Installing production dependencies..."
-npm ci --only=production --no-optional
+# Install ALL dependencies (not just production) because we need to build on the server
+echo "Installing all dependencies (including dev dependencies for build)..."
+npm ci --no-optional
 
 echo "Dependencies installed successfully"
 

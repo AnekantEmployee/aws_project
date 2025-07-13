@@ -18,22 +18,19 @@ phases:
 
   build:
     commands:
-      - echo "Build started on $(date)"
-      - export NODE_OPTIONS="--max-old-space-size=4096"
-      - npm run build --verbose
-      - echo "Build output:"
-      - ls -la .next/
+      - echo "Skipping build - will build on target server"
+      - echo "Preparing source code for deployment..."
 
   post_build:
     commands:
       - echo "Preparing artifacts..."
-      - chmod +x scripts/*.sh  # Ensure scripts are executable
+      - chmod +x scripts/*.sh
       - echo "Final directory structure:"
       - ls -la
-      - echo "Build completed on $(date)"
+      - echo "Preparation completed on $(date)"
 
 artifacts:
   files:
-    - "**/*"  # Include all files
-  base-directory: .  # Root of the project
-  discard-paths: no  # Keep directory structure
+    - "**/*"
+  base-directory: .
+  discard-paths: no

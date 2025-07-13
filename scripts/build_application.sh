@@ -11,6 +11,7 @@ cd /var/www/nextjs_app
 
 # Set environment for build
 export NODE_ENV=production
+export NODE_OPTIONS="--max-old-space-size=4096"
 
 # Check if build script exists
 if ! npm run build --dry-run &>/dev/null; then
@@ -31,3 +32,10 @@ fi
 echo "Build completed successfully"
 echo "Build output:"
 ls -la .next/
+
+# Remove dev dependencies after build to save space
+echo "Removing dev dependencies..."
+npm ci --only=production --no-optional
+
+echo "Production dependencies only:"
+npm list --depth=0 || true
