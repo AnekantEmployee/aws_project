@@ -1,34 +1,30 @@
+# scripts/install_dependencies.sh
 #!/bin/bash
 set -e
 
-# Log output
-LOG_FILE="/var/log/codedeploy-install-deps.log"
-exec > >(tee "$LOG_FILE") 2>&1
+echo "Installing dependencies for Next.js application..."
 
-echo "Starting dependency installation..."
+# Navigate to application directory
+cd /var/www/nextjs-app
 
-cd /var/www/nextjs_app
-
-# Check if package.json exists
-if [ ! -f package.json ]; then
-    echo "ERROR: package.json not found in $(pwd)"
-    echo "Directory contents:"
-    ls -la
-    exit 1
+# Install Node.js and npm if not already installed
+if ! command -v node &> /dev/null; then
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    apt-get install -y nodejs
 fi
 
-echo "Found package.json. Installing dependencies..."
+# Install PM2 globally if not already installed
+if ! command -v pm2 &> /dev/null; then
+    npm install -g pm2
+fi
 
-# Set proper npm registry and clear cache
-npm config set registry https://registry.npmjs.org/
-npm cache clean --force
+# Install application dependencies
+npm ci --production
 
-# Install ALL dependencies (not just production) because we need to build on the server
-echo "Installing all dependencies (including dev dependencies for build)..."
-npm ci --no-optional
+# Build the Next.js application
+npm run build
 
-echo "Dependencies installed successfully"
+# Set proper ownership
+chown -R ubuntu:ubuntu /var/www/nextjs-app
 
-# Show installed packages for debugging
-echo "Installed packages:"
-npm list --depth=0 || true
+echo "Dependencies installed successfully!"
