@@ -1,20 +1,18 @@
-# scripts/start_application.sh
 #!/bin/bash
-set -e
+set -euo pipefail
 
-echo "Starting Next.js application..."
+APP_DIR="/var/www/nextjs-app"
 
-# Navigate to application directory
-cd /var/www/nextjs-app
+cd "$APP_DIR"
 
-# Start the application with PM2
+# Stop & delete any existing PM2 instance (in case of redeploy)
+sudo -u ubuntu pm2 delete nextjs-app || true
+
+# Start
 sudo -u ubuntu pm2 start ecosystem.config.js --env production
-
-# Save PM2 process list
 sudo -u ubuntu pm2 save
 
-# Setup PM2 to start on system boot
-sudo -u ubuntu pm2 startup systemd
-sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
+# Enable auto-start only once
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu --service-name pm2-nextjs || true
 
-echo "Application started successfully!"
+echo "Application started with PM2"
