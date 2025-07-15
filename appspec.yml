@@ -4,12 +4,17 @@ files:
   - source: /
     destination: /var/www/nextjs-app
     overwrite: yes
+
 permissions:
   - object: /var/www/nextjs-app
     pattern: "**"
     owner: ubuntu
     group: ubuntu
     mode: 755
+    type:
+      - file
+      - directory
+
 hooks:
   BeforeInstall:
     - location: scripts/stop_application.sh
